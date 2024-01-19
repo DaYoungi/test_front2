@@ -10,6 +10,7 @@ function App({}){
 
   
   const [success, setSucces] = useState(false)
+  const [nickName, setNickName] = useState("")
   const [msg, setMsg] = useState([])
 
 
@@ -18,22 +19,23 @@ function App({}){
   const nickName_ref = useRef("")
 
   function handleLogin(){
-
-  server.emit('login',nickName_ref.current.value)
-  setSucces(true)   
+    server.emit('login', nickName_ref.current.value)
+    setSucces(true)   
+    setNickName(nickName_ref.current.value)
   }
 
     function handlesend(){
-      // fetch('http://localhost:3000/login/'+input_ref.current.value)
-      // .then(res=>res.json())
-      // .then(data=>{
-      //   console.log(data)
-      // })
       if(input_ref.current.value != ""){
         let msgArray = [...msg]
         msgArray.push({level:"me", msg:input_ref.current.value})
         setMsg(msgArray)
-        server.emit('send',input_ref.current.value)
+        server.emit('send',{nickName:nickName, msg:input_ref.current.value})
+      }
+    }
+
+      function handleSendkey(e){
+        if(e.key == 'Enter'){
+          handlesend()
       }
     }
 
@@ -47,8 +49,9 @@ function App({}){
         msgArray.push(data)
         setMsg(msgArray)
       })
-      if(input_ref.current){
-      input_ref.current.value=""
+
+      if(input_ref.current && msg[msg.length - 1].level == "me"){
+        input_ref.current.value = ""
       }
     },[msg])
 
@@ -71,15 +74,15 @@ function App({}){
                 return  <div className='msgBox' 
                   style={{
                     justifyContent: c.level == "sys" ? "center" :  c.level == "" ? "start" : "end"}}>
-                    
-                    
-                  <div className={c.level == "sys" ? 'j_center' : "j"}>{c.msg}</div></div>
+                    <div className='nickname_style'>{c.nickName}</div>
+                    <div className={c.level == "sys" ? 'j_center' : "j"}>{c.msg}</div></div>
               }
               )}
             </div>
+
           
             <div>
-            <input ref={input_ref}></input>
+            <input ref={input_ref} onKeyPress={handleSendkey}></input>
             <Button name={"전송"} click={handlesend}/>
             </div>
           </div>

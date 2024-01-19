@@ -1,4 +1,4 @@
 import {io} from 'socket.io-client'
 
-const server = io('https://ct-server.onrender.com')
+const server = io('http://localhost:3000')
 export default server
